@@ -3,15 +3,12 @@
 :: Ensure RDP connections are enabled
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f >nul 2>&1
 
-:: Reset RDP port back to default (3389)
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v PortNumber /t REG_DWORD /d 3389 /f >nul 2>&1
+:: Reset RDP port to 50000
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v PortNumber /t REG_DWORD /d 50000 /f >nul 2>&1
 
-:: Disable NLA requirement
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v UserAuthentication /t REG_DWORD /d 0 /f >nul 2>&1
-
-:: Reset firewall rules for RDP
-netsh advfirewall firewall set rule name="Remote Desktop - User Mode (TCP-In)" new enable=yes action=allow >nul 2>&1
-netsh advfirewall firewall set rule name="Remote Desktop - User Mode (UDP-In)" new enable=yes action=allow >nul 2>&1
+:: Reset firewall rules for RDP on port 50000
+netsh advfirewall firewall add rule name="Remote Desktop - User Mode (TCP-In)" protocol=TCP dir=in localport=50000 action=allow enable=yes >nul 2>&1
+netsh advfirewall firewall add rule name="Remote Desktop - User Mode (UDP-In)" protocol=UDP dir=in localport=50000 action=allow enable=yes >nul 2>&1
 
 :: Ensure services are set to auto-start
 sc config TermService start= auto >nul 2>&1
